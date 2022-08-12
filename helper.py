@@ -48,3 +48,29 @@ def display_null_per(data, null_del_per):
     return data
 
 
+def display_outliers(data, ignore_col, num_cat):
+
+    col_name = []
+    col_lower_limit = []
+    col_upper_limit = []
+
+    for col in num_cat:
+    
+        if col not in ignore_col:
+            lower_limit = int(data["{}".format(col)].mean() - 3 * data["{}".format(col)].std())
+            upper_limit = int(data["{}".format(col)].mean() + 3 * data["{}".format(col)].std())
+
+            col_name.append(col)
+            col_lower_limit.append(lower_limit)
+            col_upper_limit.append(upper_limit)
+            
+
+    dt = {
+        "Columns": col_name,
+        "Lower Limit": col_lower_limit,
+        "Upper Limit": col_upper_limit
+    }
+
+    data = pd.DataFrame(dt)
+
+    return data

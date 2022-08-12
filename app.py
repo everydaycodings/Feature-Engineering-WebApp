@@ -1,5 +1,5 @@
 import streamlit as st
-from helper import describe, display_null_per, data
+from helper import describe, display_null_per, data, display_outliers
 
 st.set_page_config(
      page_title="Data Analysis Web App",
@@ -23,12 +23,13 @@ uploaded_file = st.sidebar.file_uploader("Upload Your file", type=file_format_ty
 if uploaded_file is not None:
 
     data = data(uploaded_file)
-    
-    max_outliers_hold = st.sidebar.slider(label="Enter the Percentage of the max NaN Value acceptance", help="Enter The Percentage at which you can replace the NaN value if it exceeds the number you select that perticular column will be droped", min_value=1, max_value=100)
+
+    describe, shape, columns, num_category, str_category, null_values, dtypes, unique, str_category, column_with_null_values = describe(data)
+
+    max_nan_hold = st.sidebar.slider(label="Enter the Percentage of the max NaN Value acceptance", help="Enter The Percentage at which you can replace the NaN value if it exceeds the number you select that perticular column will be droped", min_value=1, max_value=100)
+    ignore_outliers_col = st.sidebar.multiselect(label="Ignored Numeric Column for Outliers", help="Only Select those columns in which you dont want outliers to be applied.", options=num_category, default=None)
 
     if st.sidebar.button("Analysis Data"):
-
-        describe, shape, columns, num_category, str_category, null_values, dtypes, unique, str_category, column_with_null_values = describe(data)
 
         st.header("Overview")
         col1, col2, col3, col4 = st.columns(4)
@@ -78,5 +79,9 @@ if uploaded_file is not None:
 
         with col1:
             st.text("Percentage of NaN Value in each column")
-            st.dataframe(display_null_per(data, max_outliers_hold))
+            st.dataframe(display_null_per(data, max_nan_hold))
+        
+        with col2:
+            st.text("Outliers Caping in Numeric Columns")
+            st.dataframe(display_outliers(data, ignore_outliers_col, num_cat=num_category))
 
