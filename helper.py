@@ -43,9 +43,11 @@ def display_null_per(data, null_del_per):
         "Percentage": null_performer_per
     }
 
+    log_text = "{} are the columns in which we will remove null values by replacing NaN values with its closest value with mean, median and mode.\n\n {} are the columns in which we will remove null values by removing that perticular column because it exceeds you given threshold which is {}%.".format(null_replace_column, null_remove_column, null_del_per)
+
     data = pd.DataFrame(data_raw)
 
-    return data
+    return data, log_text
 
 
 def display_outliers(data, ignore_col, num_cat):
@@ -73,4 +75,14 @@ def display_outliers(data, ignore_col, num_cat):
 
     data = pd.DataFrame(dt)
 
-    return data
+    log_text = "\n\n{} are the columns in which Outliers Capping will be applied.".format(col_name)
+
+    return data, log_text
+
+
+def display(data, col_del, ignore_col, num_cat):
+
+    nan_data, log_nan = display_null_per(data, col_del)
+    outliers_data, log_outliers = display_outliers(data, ignore_col, num_cat)
+
+    return nan_data, log_nan, outliers_data, log_outliers

@@ -1,5 +1,5 @@
 import streamlit as st
-from helper import describe, display_null_per, data, display_outliers
+from helper import describe, data, display
 
 st.set_page_config(
      page_title="Data Analysis Web App",
@@ -26,10 +26,23 @@ if uploaded_file is not None:
 
     describe, shape, columns, num_category, str_category, null_values, dtypes, unique, str_category, column_with_null_values = describe(data)
 
-    max_nan_hold = st.sidebar.slider(label="Enter the Percentage of the max NaN Value acceptance", help="Enter The Percentage at which you can replace the NaN value if it exceeds the number you select that perticular column will be droped", min_value=1, max_value=100)
-    ignore_outliers_col = st.sidebar.multiselect(label="Ignored Numeric Column for Outliers", help="Only Select those columns in which you dont want outliers to be applied.", options=num_category, default=None)
+    max_nan_hold = st.slider(label="Enter the Percentage of the max NaN Value acceptance", help="Enter The Percentage at which you can replace the NaN value if it exceeds the number you select that perticular column will be droped", min_value=1, max_value=100)
+    ignore_outliers_col = st.multiselect(label="Ignored Numeric Column for Outliers", help="Only Select those columns in which you dont want outliers to be applied.", options=num_category, default=None)
 
-    if st.sidebar.button("Analysis Data"):
+    if st.checkbox("Machine Learning", help="Weather you want to prepare the data for Machine Learning"):
+        
+        ml_cat = st.selectbox(label="Enter The ML Category: ", options=["Supervised", "Unsupervised"])
+
+        if ml_cat == "Supervised":
+
+            #ml_algo_cat = st.selectbox(label="Enter your ML problem type.", options=["Regression", "Classification"])
+            y = st.selectbox(label="Select your dependent Column.", options=columns)
+    
+    
+
+    if st.button("Analysis Data"):
+
+        null_data, log_text_null, outliers_data, log_text_outliers = display(data, max_nan_hold, ignore_outliers_col, num_category)
 
         st.header("Overview")
         col1, col2, col3, col4 = st.columns(4)
@@ -79,9 +92,12 @@ if uploaded_file is not None:
 
         with col1:
             st.text("Percentage of NaN Value in each column")
-            st.dataframe(display_null_per(data, max_nan_hold))
+            st.dataframe(null_data)
         
         with col2:
             st.text("Outliers Caping in Numeric Columns")
-            st.dataframe(display_outliers(data, ignore_outliers_col, num_cat=num_category))
+            st.dataframe(outliers_data)
+
+        
+        st.code(body=log_text_null+log_text_outliers)
 
